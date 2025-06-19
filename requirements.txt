@@ -1,0 +1,4 @@
+Historical stock data from Yahoo Finance
+ Normalize and reshape data for LSTM input
+ Build and train LSTM model
+ Plot actual vs predicted prices
