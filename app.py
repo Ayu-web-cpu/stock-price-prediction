@@ -7,16 +7,16 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 
-# 1. Download historical stock data
+
 ticker = 'AAPL'
 df = yf.download(ticker, start='2018-01-01', end='2024-01-01')
 data = df['Close'].values.reshape(-1, 1)
 
-# 2. Normalize data
+
 scaler = MinMaxScaler(feature_range=(0, 1))
 scaled_data = scaler.fit_transform(data)
 
-# 3. Prepare data for LSTM
+
 def create_dataset(dataset, time_step=60):
     X, y = [], []
     for i in range(time_step, len(dataset)):
@@ -29,7 +29,7 @@ X, y = create_dataset(scaled_data, time_step)
 X = torch.tensor(X, dtype=torch.float32)
 y = torch.tensor(y, dtype=torch.float32).view(-1, 1)
 
-# 4. Split into train and test
+
 train_size = int(len(X) * 0.8)
 X_train, X_test = X[:train_size], X[train_size:]
 y_train, y_test = y[:train_size], y[train_size:]
@@ -38,7 +38,7 @@ train_dataset = TensorDataset(X_train, y_train)
 test_dataset = TensorDataset(X_test, y_test)
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 
-# 5. Build LSTM model
+
 class LSTMModel(nn.Module):
     def __init__(self, input_size=1, hidden_size=50, num_layers=2):
         super(LSTMModel, self).__init__()
@@ -55,7 +55,7 @@ model = LSTMModel()
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-# 6. Train model
+
 epochs = 20
 for epoch in range(epochs):
     for xb, yb in train_loader:
@@ -68,7 +68,7 @@ for epoch in range(epochs):
     if (epoch+1) % 5 == 0:
         print(f'Epoch {epoch+1}/{epochs}, Loss: {loss.item():.4f}')
 
-# 7. Predict
+
 model.eval()
 with torch.no_grad():
     X_test_seq = X_test.unsqueeze(-1)
@@ -76,7 +76,7 @@ with torch.no_grad():
     predicted_prices = scaler.inverse_transform(predicted)
     actual_prices = scaler.inverse_transform(y_test.numpy())
 
-# 8. Plot actual vs predicted
+
 plt.figure(figsize=(12,6))
 plt.plot(actual_prices, color='blue', label='Actual Prices')
 plt.plot(predicted_prices, color='red', label='Predicted Prices')
